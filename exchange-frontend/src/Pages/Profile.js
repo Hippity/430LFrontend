@@ -2,22 +2,14 @@ import "../App.css";
 import { useEffect, useState } from "react";
 import {
   createTheme,
-  Divider,
-  IconButton,
-  MenuItem,
-  Select,
-  TextField,
   Box,
   ThemeProvider,
 } from "@mui/material";
 import { Typography } from "@mui/material";
-import { Button } from "@mui/material";
 import { getUserToken } from "../localStorage";
-import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import React, { useCallback } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { GridColDef } from "@mui/x-data-grid";
-import { color } from "@mui/system";
 import NavbarComponent from "../navbarComponent";
 var SERVER_URL = "http://127.0.0.1:5000";
 
@@ -33,10 +25,21 @@ let theme = createTheme({
 });
 
 function Profile() {
+
   let [userToken, setUserToken] = useState(getUserToken());
   let [userTransactions, setUserTransactions] = useState([]);
+  let [username, setUsername ] = useState("");
+  let [lbpBalance, setLbpBalance ] = useState("");
+  let [usdBalance, setUsdBalance ] = useState("");
 
   const columns: GridColDef[] = [
+    { field: "added_date", headerName: "Added Time", width: 200 },
+    { field: "lbp_amount", headerName: "LBP Amount", width: 150 },
+    { field: "usd_amount", headerName: "USD Amount", width: 150 },
+    { field: "usd_to_lbp", headerName: "USD to LBP", width: 100 },
+  ];
+
+  const columns2: GridColDef[] = [
     { field: "added_date", headerName: "Added Time", width: 150 },
     { field: "lbp_amount", headerName: "LBP Amount", width: 150 },
     { field: "usd_amount", headerName: "USD Amount", width: 150 },
@@ -57,6 +60,23 @@ function Profile() {
       fetchUserTransactions();
     }
   }, [fetchUserTransactions, userToken]);
+
+  const fetchInfo = useCallback(() => {
+    fetch(`${SERVER_URL}/userInfo`, {
+      headers: {
+        Authorization: `bearer ${userToken}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) =>{ setUsername(data.user_name); setLbpBalance(data.balance_lbp) ; setUsdBalance(data.balance_usd) });
+  }, [userToken]);
+  useEffect(() => {
+    if (userToken) {
+      fetchInfo();
+    }
+  }, [fetchInfo, userToken]);
+
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -85,8 +105,9 @@ function Profile() {
             </Typography>
 
             <Box display={"flex"} flexDirection={"column"}>
-              <Typography variant="body">Username: </Typography>
-              <Typography variant="body">Balance: </Typography>
+              <Typography variant="body"> <b>Username:</b> {username} </Typography>
+              <Typography variant="body"><b>LBP Balance:</b> {lbpBalance} LBP </Typography>
+              <Typography variant="body"><b>USD Balance:</b> ${usdBalance} </Typography>
             </Box>
 
             

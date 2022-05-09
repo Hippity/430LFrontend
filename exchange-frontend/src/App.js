@@ -18,6 +18,8 @@ import LoginIcon from "@mui/icons-material/Login";
 import HomeIcon from "@mui/icons-material/Home";
 import Profile from "./Pages/Profile";
 import NavbarComponent from "./navbarComponent";
+import AdminHome from "./Pages/AdminHome";
+import Shop from "./Pages/Shop";
 
 var SERVER_URL = "http://127.0.0.1:5000";
 
@@ -31,6 +33,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/profile" element = {<Profile />}/>
+            <Route path="/admin" element = {<AdminHome/>}/>
+            <Route path="/shop" element = {<Shop />} />
           </Routes>
         </BrowserRouter>
   

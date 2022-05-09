@@ -26,6 +26,9 @@ function NavbarComponent(){
 
     function Gotoprofile() {
       if (userToken != null){
+        if (authState == States.USER_ADMIN){
+          navigate("/admin", { replace: true });
+        }
       navigate("/profile", { replace: true });
       }
       else{
@@ -37,11 +40,21 @@ function NavbarComponent(){
       navigate("/", { replace: true });
     }
 
+    function Gotoshop(){
+      if (userToken != null){
+        navigate("/shop", { replace: true });
+      }
+      else{
+        setAuthState(States.USER_LOG_IN)
+      }
+    }
+
     const States = {
         PENDING: "PENDING",
         USER_CREATION: "USER_CREATION",
         USER_LOG_IN: "USER_LOG_IN",
         USER_AUTHENTICATED: "USER_AUTHENTICATED",
+        USER_ADMIN: "USER_ADMIN",
       };
     
       let [userToken, setUserToken] = useState(getUserToken());
@@ -61,7 +74,12 @@ function NavbarComponent(){
         })
           .then((response) => response.json())
           .then((body) => {
-            setAuthState(States.USER_AUTHENTICATED);
+            if (body.isAdmin){
+              setAuthState(States.USER_ADMIN)
+            }
+            else{
+              setAuthState(States.USER_AUTHENTICATED);
+            }
             setUserToken(body.token);
             saveUserToken(body.token);
           });
@@ -133,14 +151,17 @@ function NavbarComponent(){
               <CurrencyExchangeIcon
                 className="navbar-icon"
                 sx={{ color: "#C8D6E3", fontSize: 40 }}
+                disabled = {States.USER_ADMIN == authState}
               />
             </IconButton>
           </ListItem>
           <ListItem>
-            <IconButton>
+            <IconButton onClick={Gotoshop}>
               <CreditCardIcon
                 className="navbar-icon"
                 sx={{ color: "#C8D6E3", fontSize: 40 }}
+                disabled = {States.USER_ADMIN == authState}
+
               />
             </IconButton>
           </ListItem>
