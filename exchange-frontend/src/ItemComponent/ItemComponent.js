@@ -28,14 +28,16 @@ export default function ItemComponent({
 }) {
 
   let [userToken, setUserToken] = useState(getUserToken());
+  let [err, setErr] = useState(null);
+
 
 
   function ImageSrc(){
-    if (buyUsd){
-      return <img width={100} height={100} src={require("../buyLogo.png")}/>
+    if (!buyUsd){
+      return <img width={100} height={100} src={require("../sellLogo.png")}/>
     }
     else {
-      return <img width={100} height={100} src={require("../sellLogo.png")}/> 
+      return <img width={100} height={100} src={require("../buyLogo.png")}/> 
     }
   }
 
@@ -52,6 +54,7 @@ export default function ItemComponent({
       body: JSON.stringify(data),
     })
     .then((response) => response.json())
+    .then((data)=> setErr(data.Error))
 
 
   }
@@ -64,6 +67,8 @@ export default function ItemComponent({
       <ImageSrc/>
 
       <Box sx={{ marginLeft: "1rem",  marginRight:"1rem"}} display={"flex"} flexDirection="column">
+
+        <Typography>{err}</Typography>
 
 
         <Typography

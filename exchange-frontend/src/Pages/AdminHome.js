@@ -33,20 +33,17 @@ let theme = createTheme({
   },
 });
 
-
-
 function AdminHome() {
   let [buyUsdRate, setBuyUsdRate] = useState(null);
   let [err, setErr] = useState(null);
   let [sellUsdRate, setSellUsdRate] = useState(null);
   let [lbpInput, setLbpInput] = useState("");
   let [usdInput, setUsdInput] = useState("");
-  let [userInput , setUserInpt] = useState("");
+  let [userInput, setUserInpt] = useState("");
   let [userToken, setUserToken] = useState(getUserToken());
-  let [isAdmin , setIsAdmin] = useState(false);
+  let [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
-
 
   function fetchRates() {
     fetch(SERVER_URL + "/exchangeRate")
@@ -57,20 +54,16 @@ function AdminHome() {
       });
   }
 
-
-  
   function addMoney() {
+    if (userInput == "") {
+      setErr("Invalid username");
+      return;
+    }
+    if (usdInput <= 0 && lbpInput <= 0) {
+      setErr("Add an amount");
+      return;
+    }
 
-    if (userInput == "")
-    {
-        setErr("Invalid username")
-        return ;
-    }
-    if (usdInput <= 0 && lbpInput <= 0){
-        setErr("Add an amount")
-        return ;
-    }
-    
     let data = {
       amount_usd: usdInput,
       amount_lbp: lbpInput,
@@ -91,7 +84,7 @@ function AdminHome() {
     })
       .then((response) => response.json())
       .then((data) => {
-          setErr(data.Error);
+        setErr(data.Error);
       });
   }
 
@@ -116,123 +109,108 @@ function AdminHome() {
       },
     })
       .then((response) => response.json())
-      .then((data) =>{ 
-       if (!data.is_admin){
-          navigate("/", {replace: true})
+      .then((data) => {
+        if (!data.is_admin) {
+          navigate("/", { replace: true });
         }
-       });
+      });
   }, [userToken]);
   useEffect(() => {
     if (userToken) {
       fetchAdmin();
+    } else {
+      navigate("/", { replace: true });
     }
   }, [fetchAdmin, userToken]);
-
-
-
-
-
 
   return (
     <ThemeProvider theme={theme}>
       <Box display="flex" flexDirection="row">
-
         <Box className="mainContent" flexGrow={1}>
+          <Box
+            display="flex"
+            flexDirection="row"
+            sx={{ alignItems: "cetner", justifyContent: "center" }}
+          >
+            <Typography
+              sx={{ color: "#336899", fontWeight: "bolder", margin: "2rem" }}
+              variant="h4"
+            >
+              EXHANGE ADMIN
+            </Typography>
+          </Box>
 
-        <Box
-        display="flex"
-        flexDirection="row"
-        sx={{ alignItems: "cetner", justifyContent: "center" }}
-      >
-        <Typography
-          sx={{ color: "#336899", fontWeight: "bolder", margin: "2rem" }}
-          variant="h4"
-        >
-          EXHANGE ADMIN
-        </Typography>
-      </Box>
+          <div className="wrapper">
+            <Typography variant="h5">Today's Exchange Rate</Typography>
 
-      <div className="wrapper">
-        <Typography variant="h5">Today's Exchange Rate</Typography>
+            <Typography variant="body2">LBP to USD Exchange Rate </Typography>
 
-        <Typography variant="body2">LBP to USD Exchange Rate </Typography>
+            <Typography variant="h6">
+              Sell USD: <span id="sellRate">{sellUsdRate}</span>
+            </Typography>
 
-        <Typography variant="h6">
-          Sell USD: <span id="sellRate">{sellUsdRate}</span>
-        </Typography>
-
-        <Typography variant="h6">
-          {" "}
-          Buy USD: <span id="buyRate">{buyUsdRate}</span>{" "}
-        </Typography>
-
-      </div>
-
-      <div className="wrapper">
-
-        <Typography sx={{color: "red"}} className="error">{err}</Typography>
-
-        <Typography variant="h5">Add Money for a User</Typography>
-
-        <form name="transaction-entry">
-    
-
-          <div className="amount-input">
-
-          <TextField
-              id="username"
-              sx={sx_textField}
-              InputProps={{
-                inputProps: { min: 1 },
-              }}
-              type="text"
-              value={userInput}
-              label="Username"
-              onChange={(e) => setUserInpt(e.target.value)}
-            />
-
-
-            <TextField
-              id="lbp-amount"
-              sx={sx_textField}
-              InputProps={{
-                inputProps: { min: 1 },
-              }}
-              type="number"
-              value={lbpInput}
-              label="LBP Amount"
-              onChange={(e) => setLbpInput(e.target.value)}
-            />
-
-            <TextField
-              label="USD Amount"
-              sx={sx_textField}
-              InputProps={{
-                inputProps: { min: 1 },
-              }}
-              id="usd-amount"
-              type="number"
-              value={usdInput}
-              onChange={(e) => setUsdInput(e.target.value)}
-            />
+            <Typography variant="h6">
+              {" "}
+              Buy USD: <span id="buyRate">{buyUsdRate}</span>{" "}
+            </Typography>
           </div>
-        </form>
 
-        <Button
-          id="add-button"
-          sx={sx_button}
-          variant="containted"
-          onClick={addMoney}
-        >
-          Add
-        </Button>
+          <div className="wrapper">
+            <Typography sx={{ color: "red" }} className="error">
+              {err}
+            </Typography>
 
+            <Typography variant="h5">Add Money for a User</Typography>
 
-      </div>
+            <form name="transaction-entry">
+              <div className="amount-input">
+                <TextField
+                  id="username"
+                  sx={sx_textField}
+                  InputProps={{
+                    inputProps: { min: 1 },
+                  }}
+                  type="text"
+                  value={userInput}
+                  label="Username"
+                  onChange={(e) => setUserInpt(e.target.value)}
+                />
 
-     
-       
-          
+                <TextField
+                  id="lbp-amount"
+                  sx={sx_textField}
+                  InputProps={{
+                    inputProps: { min: 1 },
+                  }}
+                  type="number"
+                  value={lbpInput}
+                  label="LBP Amount"
+                  onChange={(e) => setLbpInput(e.target.value)}
+                />
+
+                <TextField
+                  label="USD Amount"
+                  sx={sx_textField}
+                  InputProps={{
+                    inputProps: { min: 1 },
+                  }}
+                  id="usd-amount"
+                  type="number"
+                  value={usdInput}
+                  onChange={(e) => setUsdInput(e.target.value)}
+                />
+              </div>
+            </form>
+
+            <Button
+              id="add-button"
+              sx={sx_button}
+              variant="containted"
+              onClick={addMoney}
+            >
+              Add
+            </Button>
+          </div>
         </Box>
       </Box>
     </ThemeProvider>

@@ -21,8 +21,10 @@ import {
   ArgumentAxis,
   ValueAxis,
   Chart,
+  Title,
   LineSeries,
 } from "@devexpress/dx-react-chart-material-ui";
+import { Animation } from "@devexpress/dx-react-chart";
 
 var SERVER_URL = "http://127.0.0.1:5000";
 
@@ -41,22 +43,19 @@ function Home() {
   let [buyUsdRate, setBuyUsdRate] = useState(null);
   let [err, setErr] = useState(null);
   let [sellUsdRate, setSellUsdRate] = useState(null);
-  let [lbpInput, setLbpInput] = useState("");
-  let [usdInput, setUsdInput] = useState("");
+  let [lbpInput, setLbpInput] = useState(0);
+  let [usdInput, setUsdInput] = useState(0);
   let [transactionType, setTransactionType] = useState("usd-to-lbp");
   let [userToken, setUserToken] = useState(getUserToken());
-  let [lbpCalc, setLbpCalc] = useState(null);
-  let [usdCalc, setUsdCalc] = useState(null);
+  let [lbpCalc, setLbpCalc] = useState(0);
+  let [usdCalc, setUsdCalc] = useState(0);
+  let [sellCount, setSellCount] = useState([]);
+  let [buyCount, setBuyCount] = useState([]);
+  let [sellAvg, setSellAvg] = useState([]);
+  let [BuyAvg, setBuyAvg] = useState([]);
+
   let [calcType, setCalcType] = useState("usd-to-lbp");
   let [calcDir, setCalcDir] = useState(true);
-
-  const data = [
-    { x: 1, y: 30 },
-    { x: 2, y: 40 },
-    { x: 3, y: 5 },
-    { x: 4, y: 2 },
-    { x: 5, y: 21 },
-  ];
 
   let sx_button = {
     backgroundColor: "#C8D6E3",
@@ -80,6 +79,18 @@ function Home() {
   }
 
   useEffect(fetchRates, []);
+
+  function fetchStats() {
+    fetch(SERVER_URL + "/stats")
+      .then((response) => response.json())
+      .then((data) => {
+        setSellCount(data.sell_count);
+        setBuyCount(data.buy_count);
+        setBuyAvg(data.avg_buy);
+        setSellAvg(data.avg_sell);
+      });
+  }
+  useEffect(fetchStats, []);
 
   function checkZero() {
     if (
@@ -130,7 +141,6 @@ function Home() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         fetchRates();
       });
   }
@@ -152,6 +162,42 @@ function Home() {
       }
     }
   }
+
+  function giveCount1() {
+    let data = [];
+    let c = 0;
+    for (let i = sellCount.length; i > 0; i--) {
+      data.push({ x2: c++, y2: sellCount[i] });
+    }
+    return data;
+  }
+
+  function giveCount2() {
+    let data = [];
+    let c = 0;
+    for (let i = buyCount.length; i > 0; i--) {
+      data.push({ x2: c++, y2: buyCount[i] });
+    }
+    return data;
+  }
+
+  function giveAvg1() {
+    let data = [];
+    let c = 0;
+    for (let i = BuyAvg.length; i > 0; i--) {
+      data.push({ x2: c++, y2: BuyAvg[i] });
+    }
+    return data;
+  }
+  function giveAvg2() {
+    let data = [];
+    let c = 0;
+    for (let i = sellAvg.length; i > 0; i--) {
+      data.push({ x2: c++, y2: sellAvg[i] });
+    }
+    return data;
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <Box display="flex" flexDirection="row">
@@ -224,6 +270,7 @@ function Home() {
 
             <Select
               label={"Transaction Type"}
+              value={transactionType}
               id="transaction-type"
               onChange={(e) => setTransactionType(e.target.value)}
             >
@@ -283,6 +330,7 @@ function Home() {
 
             <Select
               label={"Calc Type"}
+              value={calcType}
               onChange={(e) => setCalcType(e.target.value)}
             >
               <MenuItem value="usd-to-lbp">USD to LBP</MenuItem>
@@ -291,14 +339,47 @@ function Home() {
           </div>
 
           <div className="wrapper">
-            <Typography variant="h5">Rate over Time</Typography>
-
             <Paper>
-              <Chart data={data}>
+              <Chart data={giveAvg1()}>
                 <ArgumentAxis />
                 <ValueAxis />
+                <LineSeries valueField="y2" argumentField="x2" />
 
-                <LineSeries valueField="y" argumentField="x" />
+                <Title text="Sell USD rate in the Last 20 Days" />
+                <Animation />
+              </Chart>
+            </Paper>
+
+            <Paper>
+              <Chart data={giveCount2()}>
+                <ArgumentAxis />
+                <ValueAxis />
+                <LineSeries valueField="y2" argumentField="x2" />
+
+                <Title text="Number of sell USD transactions in the Last 20 Days" />
+                <Animation />
+              </Chart>
+            </Paper>
+
+            <Paper>
+              <Chart data={giveAvg2()}>
+                <ArgumentAxis />
+                <ValueAxis />
+                <LineSeries valueField="y2" argumentField="x2" />
+
+                <Title text="Buy USD rate in the Last 20 Days" />
+                <Animation />
+              </Chart>
+            </Paper>
+
+            <Paper>
+              <Chart data={giveCount1()}>
+                <ArgumentAxis />
+                <ValueAxis />
+                <LineSeries valueField="y2" argumentField="x2" />
+
+                <Title text="Number of buy USD transactions in the Last 20 Days" />
+                <Animation />
               </Chart>
             </Paper>
           </div>

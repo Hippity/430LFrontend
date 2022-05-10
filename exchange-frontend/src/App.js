@@ -4,7 +4,6 @@ import { Box, Icon, IconButton, List, ListItem, Toolbar } from "@mui/material";
 import { Typography } from "@mui/material";
 import { Button } from "@mui/material";
 import { AppBar } from "@mui/material";
-
 import { Snackbar } from "@mui/material";
 import { Alert } from "@mui/material";
 import { getUserToken, saveUserToken, clearUserToken } from "./localStorage";
@@ -24,23 +23,16 @@ import Shop from "./Pages/Shop";
 var SERVER_URL = "http://127.0.0.1:5000";
 
 function App() {
-
   return (
     <div className="App">
-      
-      
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/profile" element = {<Profile />}/>
-            <Route path="/admin" element = {<AdminHome/>}/>
-            <Route path="/shop" element = {<Shop />} />
-          </Routes>
-        </BrowserRouter>
-  
-
-    
-
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<AdminHome />} />
+          <Route path="/shop" element={<Shop />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }

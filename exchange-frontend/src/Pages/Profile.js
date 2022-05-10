@@ -1,10 +1,6 @@
 import "../App.css";
 import { useEffect, useState } from "react";
-import {
-  createTheme,
-  Box,
-  ThemeProvider,
-} from "@mui/material";
+import { createTheme, Box, ThemeProvider } from "@mui/material";
 import { Typography } from "@mui/material";
 import { getUserToken } from "../localStorage";
 import React, { useCallback } from "react";
@@ -25,12 +21,13 @@ let theme = createTheme({
 });
 
 function Profile() {
-
   let [userToken, setUserToken] = useState(getUserToken());
   let [userTransactions, setUserTransactions] = useState([]);
-  let [username, setUsername ] = useState("");
-  let [lbpBalance, setLbpBalance ] = useState("");
-  let [usdBalance, setUsdBalance ] = useState("");
+  let [itemsBought, setItemsBought] = useState([]);
+  let [itemsSold, setItemsSold] = useState([]);
+  let [username, setUsername] = useState("");
+  let [lbpBalance, setLbpBalance] = useState("");
+  let [usdBalance, setUsdBalance] = useState("");
 
   const columns: GridColDef[] = [
     { field: "added_date", headerName: "Added Time", width: 200 },
@@ -40,10 +37,15 @@ function Profile() {
   ];
 
   const columns2: GridColDef[] = [
-    { field: "added_date", headerName: "Added Time", width: 150 },
-    { field: "lbp_amount", headerName: "LBP Amount", width: 150 },
-    { field: "usd_amount", headerName: "USD Amount", width: 150 },
-    { field: "usd_to_lbp", headerName: "USD to LBP", width: 100 },
+    { field: "lbpAmount", headerName: "LBP Amount", width: 150 },
+    { field: "usdAmount", headerName: "USD Amount", width: 150 },
+    { field: "sell", headerName: "USD to LBP", width: 100 },
+  ];
+
+  const columns3: GridColDef[] = [
+    { field: "lbpAmount", headerName: "LBP Amount", width: 150 },
+    { field: "usdAmount", headerName: "USD Amount", width: 150 },
+    { field: "sell", headerName: "USD to LBP", width: 100 },
   ];
 
   const fetchUserTransactions = useCallback(() => {
@@ -68,7 +70,11 @@ function Profile() {
       },
     })
       .then((response) => response.json())
-      .then((data) =>{ setUsername(data.user_name); setLbpBalance(data.balance_lbp) ; setUsdBalance(data.balance_usd) });
+      .then((data) => {
+        setUsername(data.user_name);
+        setLbpBalance(data.balance_lbp);
+        setUsdBalance(data.balance_usd);
+      });
   }, [userToken]);
   useEffect(() => {
     if (userToken) {
@@ -76,7 +82,23 @@ function Profile() {
     }
   }, [fetchInfo, userToken]);
 
-
+  const fetchItems = useCallback(() => {
+    fetch(`${SERVER_URL}/getItemsByUser`, {
+      headers: {
+        Authorization: `bearer ${userToken}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setItemsSold(data.put);
+        setItemsBought(data.bought);
+      });
+  }, [userToken]);
+  useEffect(() => {
+    if (userToken) {
+      fetchItems();
+    }
+  }, [fetchItems, userToken]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -105,12 +127,17 @@ function Profile() {
             </Typography>
 
             <Box display={"flex"} flexDirection={"column"}>
-              <Typography variant="body"> <b>Username:</b> {username} </Typography>
-              <Typography variant="body"><b>LBP Balance:</b> {lbpBalance} LBP </Typography>
-              <Typography variant="body"><b>USD Balance:</b> ${usdBalance} </Typography>
+              <Typography variant="body">
+                {" "}
+                <b>Username:</b> {username}{" "}
+              </Typography>
+              <Typography variant="body">
+                <b>LBP Balance:</b> {lbpBalance} LBP{" "}
+              </Typography>
+              <Typography variant="body">
+                <b>USD Balance:</b> ${usdBalance}{" "}
+              </Typography>
             </Box>
-
-            
           </div>
 
           <div className="wrapper">
@@ -121,6 +148,28 @@ function Profile() {
               className="data"
               columns={columns}
               rows={userTransactions}
+              autoHeight
+            />
+          </div>
+
+          <div className="wrapper">
+            <Typography variant="h5" marginBottom={"2rem"}>
+              Items Sold
+            </Typography>
+            <DataGrid
+              className="data"
+              columns={columns2}
+              rows={itemsSold}
+              autoHeight
+            />
+
+            <Typography variant="h5" marginTop={"2rem"} marginBottom={"2rem"}>
+              Items Bought
+            </Typography>
+            <DataGrid
+              className="data"
+              columns={columns3}
+              rows={itemsBought}
               autoHeight
             />
           </div>
